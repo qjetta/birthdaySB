@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: ${JDBC_DATABASE_URL}
+    username: ${JDBC_DATABASE_USERNAME}
+    password: ${JDBC_DATABASE_PASSWORD}
+  jpa:
+    database: POSTGRESQL
+    hibernate:
+       ddl-auto: update
+#      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      encoding: UTF-8
+      platform: postgres
+  mvc:
+    format:
+      date-time: iso
+    problemdetails:
+      enabled: false
+
