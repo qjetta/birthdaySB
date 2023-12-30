@@ -1,4 +1,9 @@
-
+CREATE TABLE IF NOT EXISTS person (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    surname VARCHAR(255),
+    birthday DATE
+);
 
 INSERT INTO person ( name, surname, birthday) 
 VALUES
