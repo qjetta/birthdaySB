@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:birthdays
+    username: test_user
+    password: dfs5f4d5sd2fs
+    driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+  mvc:
+    format:
+      date-time: iso
+    problemdetails:
+      enabled: false
+      
+#debug: true
+logging:
+  level:
+    root: ERROR
+    "[org.springframework.web]": ERROR
+    "[cz.qjetta]": DEBUG
+    "[org.hibernate]": ERROR
+
