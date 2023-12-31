@@ -1,9 +1,5 @@
-CREATE TABLE IF NOT EXISTS person (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    surname VARCHAR(255),
-    birthday DATE
-);
+INSERT INTO user_info (name, email, password, roles) 
+VALUES ('user1', 'user1@example.com', 'password1', null);
 
 INSERT INTO person ( name, surname, birthday) 
 VALUES

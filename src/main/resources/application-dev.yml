@@ -13,7 +13,7 @@ spring:
     problemdetails:
       enabled: false
       
-#debug: true
+debug: true
 logging:
   level:
     root: ERROR

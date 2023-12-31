@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import cz.qjetta.birthdays.config.RecordNotFoundException;
-import cz.qjetta.birthdays.model.Person;
+import cz.qjetta.birthdays.entities.Person;
+import cz.qjetta.birthdays.exception.RecordNotFoundException;
 import cz.qjetta.birthdays.repository.IPersonRepository;
 
 @Service

@@ -16,7 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import cz.qjetta.birthdays.controller.PersonController;
-import cz.qjetta.birthdays.model.Person;
+import cz.qjetta.birthdays.entities.Person;
 import cz.qjetta.birthdays.repository.IPersonRepository;
 import cz.qjetta.birthdays.service.PersonService;
 

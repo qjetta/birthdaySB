@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import cz.qjetta.birthdays.controller.PersonController;
-import cz.qjetta.birthdays.model.Person;
+import cz.qjetta.birthdays.entities.Person;
 
 /**
  * A few tests against {@link PersonController} without mocking so they run

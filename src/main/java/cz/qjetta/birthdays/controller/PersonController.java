@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cz.qjetta.birthdays.model.Person;
+import cz.qjetta.birthdays.entities.Person;
 import cz.qjetta.birthdays.service.PersonService;
 import lombok.extern.slf4j.Slf4j;
 

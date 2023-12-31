@@ -18,10 +18,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import cz.qjetta.birthdays.model.Person;
+import cz.qjetta.birthdays.entities.Person;
+import cz.qjetta.birthdays.entities.UserInfo;
+import cz.qjetta.birthdays.requests.AuthRequest;
 
 /**
  * Test directly REST API against H2 database that is defined in test profile
@@ -30,7 +33,10 @@ import cz.qjetta.birthdays.model.Person;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class PersonRESTTests {
-	private static final String ENDPOINT_PATH = "/person";
+	private static final String BEARER = "Bearer ";
+	private static final String PERSON_ENDPOINT_PATH = "/person";
+	private static final String REGISTER_ENDPOINT_PATH = "/register";
+	private static final String LOGIN_ENDPOINT_PATH = "/login";
 	@Autowired
 	private MockMvc mockMvc;
 	@Autowired
@@ -57,63 +63,139 @@ class PersonRESTTests {
 		return person;
 	}
 
-	@Test
-	void testPersonMethods() throws Exception {
-		getPersonList(LIST_10_PERSON);
-		getPerson(1, 10);
-		getPersonNotFound(11, 20);
-
-		postPerson(11);
-		getPersonList(LIST_11_PERSON);
-		getPerson(1, 11);
-
-		deletePerson(11);
-		getPersonList(LIST_10_PERSON);
+	private static UserInfo userAtIndex(int i, boolean generateId) {
+		UserInfo userInfo = new UserInfo();
+		if (generateId) {
+			userInfo.setId(i);
+		}
+		userInfo.setName("user" + i);
+		userInfo.setPassword("password" + i);
+		userInfo.setEmail("email" + 1 + "@example.com");
+		return userInfo;
 	}
 
-	void getPersonList(List<Person> expectedList) throws Exception {
+	@Test
+	void testPersonMethods() throws Exception {
+		getPersonListNotAuthorised();
+		postPersonNotAuthorised(1);
+		deletePersonNotAuthorised(1);
+
+		registerUser(2);
+		String jwt = login(2);
+
+		getPersonList(LIST_10_PERSON, jwt);
+
+		getPersonList(LIST_10_PERSON, jwt);
+		getPerson(1, 10, jwt);
+		getPersonNotFound(11, 20, jwt);
+
+		postPerson(11, jwt);
+		getPersonList(LIST_11_PERSON, jwt);
+		getPerson(1, 11, jwt);
+
+		deletePerson(11, jwt);
+		getPersonList(LIST_10_PERSON, jwt);
+
+	}
+
+	private void registerUser(int newIndex) throws Exception {
+		String requestBody = objectMapper
+				.writeValueAsString(userAtIndex(newIndex, false));
+
+		mockMvc.perform(post(REGISTER_ENDPOINT_PATH)
+				.contentType(MediaType.APPLICATION_JSON).content(requestBody))
+				.andExpectAll(status().isCreated());
+
+	}
+
+	private String login(int newIndex) throws Exception {
+		UserInfo userAtIndex = userAtIndex(newIndex, true);
+		AuthRequest authRequest = new AuthRequest();
+		authRequest.setUsername(userAtIndex.getName());
+		authRequest.setPassword(userAtIndex.getPassword());
+
+		String requestBody = objectMapper.writeValueAsString(authRequest);
+
+		MvcResult mvcResult = mockMvc.perform(post(LOGIN_ENDPOINT_PATH)
+				.contentType(MediaType.APPLICATION_JSON).content(requestBody))
+				.andExpectAll(status().isOk()).andReturn();
+
+		// jwt
+		return mvcResult.getResponse().getContentAsString();
+
+	}
+
+	void getPersonList(List<Person> expectedList, String jwt) throws Exception {
 		String expectedBody = objectMapper.writeValueAsString(expectedList);
 
-		mockMvc.perform(get(ENDPOINT_PATH))//
+		mockMvc.perform(get(PERSON_ENDPOINT_PATH)
+				//
+				.header("Authorization", BEARER + jwt))
+				// .with(SecurityMockMvcRequestPostProcessors.jwt()))//
 				.andExpectAll(status().isOk(), content().json(expectedBody));
 	}
 
-	void getPerson(int beginIndex, int endIndex) throws Exception {
+	void getPersonListNotAuthorised() throws Exception {
+		mockMvc.perform(get(PERSON_ENDPOINT_PATH))//
+				.andExpectAll(status().isForbidden());
+	}
+
+	void getPerson(int beginIndex, int endIndex, String jwt) throws Exception {
 		for (long index = beginIndex; index <= endIndex; index++) {
 			String expectedBody = objectMapper
 					.writeValueAsString(personAtIndex((int) index, true));
 
-			mockMvc.perform(get(ENDPOINT_PATH + "/" + index))//
+			mockMvc.perform(get(PERSON_ENDPOINT_PATH + "/" + index)
+					.header("Authorization", BEARER + jwt))//
 					.andExpectAll(status().isOk(),
 							content().json(expectedBody));
 		}
 	}
 
-	void getPersonNotFound(int beginIndex, int endIndex) throws Exception {
+	void getPersonNotFound(int beginIndex, int endIndex, String jwt)
+			throws Exception {
 		for (long index = beginIndex; index <= endIndex; index++) {
 
-			mockMvc.perform(get(ENDPOINT_PATH + "/" + index))//
+			mockMvc.perform(get(PERSON_ENDPOINT_PATH + "/" + index)
+					.header("Authorization", BEARER + jwt))
 					.andExpectAll(status().isNotFound());
 		}
 	}
 
-	void postPerson(int newIndex) throws Exception {
+	void postPerson(int newIndex, String jwt) throws Exception {
 		String requestBody = objectMapper
 				.writeValueAsString(personAtIndex(newIndex, false));
 		String expectedResponseBody = objectMapper
 				.writeValueAsString(personAtIndex(newIndex, true));
 
-		mockMvc.perform(post(ENDPOINT_PATH)
+		mockMvc.perform(post(PERSON_ENDPOINT_PATH)
+				.header("Authorization", BEARER + jwt)
 				.contentType(MediaType.APPLICATION_JSON).content(requestBody))
 				.andExpectAll(status().isCreated(),
 						content().json(expectedResponseBody));
-
 	}
 
-	void deletePerson(int index) throws Exception {
+	void postPersonNotAuthorised(int newIndex) throws Exception {
+		String requestBody = objectMapper
+				.writeValueAsString(personAtIndex(newIndex, false));
 
-		mockMvc.perform(delete(ENDPOINT_PATH + "/" + index))//
+		mockMvc.perform(post(PERSON_ENDPOINT_PATH)
+
+				.contentType(MediaType.APPLICATION_JSON).content(requestBody))
+				.andExpectAll(status().isForbidden());
+	}
+
+	void deletePerson(int index, String jwt) throws Exception {
+
+		mockMvc.perform(delete(PERSON_ENDPOINT_PATH + "/" + index)
+				.header("Authorization", BEARER + jwt))
 				.andExpect(status().isOk());
+	}
+
+	void deletePersonNotAuthorised(int index) throws Exception {
+
+		mockMvc.perform(delete(PERSON_ENDPOINT_PATH + "/" + index))
+				.andExpect(status().isForbidden());
 	}
 
 }

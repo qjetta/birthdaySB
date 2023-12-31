@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import cz.qjetta.birthdays.model.Person;
+import cz.qjetta.birthdays.entities.Person;
 
 public interface IPersonRepository extends JpaRepository<Person, Long> {
 
