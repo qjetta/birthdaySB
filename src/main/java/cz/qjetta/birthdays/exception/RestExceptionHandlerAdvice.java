@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -30,5 +31,10 @@ public class RestExceptionHandlerAdvice {
 				.collect(Collectors.joining(". "));
 		return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
 				message);
+	}
+
+	@ExceptionHandler(UsernameNotFoundException.class)
+	ProblemDetail handleNotFoundException(UsernameNotFoundException e) {
+		return ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
 	}
 }

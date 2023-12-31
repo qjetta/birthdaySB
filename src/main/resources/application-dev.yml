@@ -21,3 +21,5 @@ logging:
     "[cz.qjetta]": DEBUG
     "[org.hibernate]": INFO
 
+server:
+  port : 8081

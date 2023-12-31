@@ -21,3 +21,5 @@ logging:
     "[cz.qjetta]": DEBUG
     "[org.hibernate]": ERROR
 
+server:
+  port : 8083
