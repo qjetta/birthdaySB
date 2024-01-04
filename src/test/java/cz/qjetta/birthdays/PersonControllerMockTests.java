@@ -2,6 +2,7 @@ package cz.qjetta.birthdays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +14,12 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 
 import cz.qjetta.birthdays.controller.PersonController;
@@ -27,6 +34,8 @@ import cz.qjetta.birthdays.service.PersonService;
 @ActiveProfiles("test")
 class PersonControllerMockTests {
 
+	private static final PageRequest DEFAULT_PAGE_REQUEST = PageRequest.of(0,
+			100, Sort.by(Sort.Direction.ASC, "id"));
 	private static final List<Person> LIST_10_PERSON = IntStream
 			.rangeClosed(1, 10).mapToObj(i -> {
 				Person person = personAtIndex(i);
@@ -44,12 +53,44 @@ class PersonControllerMockTests {
 
 	@Test
 	void getPersonList() {
+
+		Page<Person> foundPage = new PageImpl<Person>(LIST_10_PERSON,
+				DEFAULT_PAGE_REQUEST, 10);
+
 		IPersonRepository mockRepository = mock(IPersonRepository.class);
-		when(mockRepository.findAllByOrderById()).thenReturn(LIST_10_PERSON);
+		when(mockRepository.findAll(DEFAULT_PAGE_REQUEST))
+				.thenReturn(foundPage);
 		PersonService service = new PersonService(mockRepository);
 		PersonController controller = new PersonController(service);
-		List<Person> result = controller.getPersonList();
-		assertIterableEquals(LIST_10_PERSON, result);
+		List<Person> result = controller.getPersonList(null, null, null, 0, 100)
+				.toList();
+		assertIterableEquals(foundPage, result);
+	}
+
+	@Test
+	void getPersonListFiltered() {
+
+		for (int i = 1; i <= 10; i++) {
+			Page<Person> foundPage = new PageImpl<Person>(
+					List.of(personAtIndex(i)), DEFAULT_PAGE_REQUEST, 1);
+
+			PersonController controller = getMockControllerFindAll(foundPage);
+			List<Person> result = controller
+					.getPersonList("Name " + i, null, null, 0, 100).toList();
+			assertIterableEquals(foundPage, result);
+		}
+
+	}
+
+	private PersonController getMockControllerFindAll(Page<Person> foundPage) {
+		IPersonRepository mockRepository = mock(IPersonRepository.class);
+		Page<Person> findAll = mockRepository.findAll(any(Specification.class),
+				any(Pageable.class));
+
+		when(findAll).thenReturn(foundPage);
+		PersonService service = new PersonService(mockRepository);
+		PersonController controller = new PersonController(service);
+		return controller;
 	}
 
 	@Test

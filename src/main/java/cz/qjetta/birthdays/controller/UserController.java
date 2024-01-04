@@ -18,9 +18,14 @@ import cz.qjetta.birthdays.requests.AuthRequest;
 import cz.qjetta.birthdays.requests.UserToRegisterRequest;
 import cz.qjetta.birthdays.service.JwtService;
 import cz.qjetta.birthdays.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping
+@Tag(name = "User Controller")
 public class UserController {
 
 	@Autowired
@@ -32,11 +37,17 @@ public class UserController {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
+	@Operation(summary = "Returns welcome text", description = "Returns a product as per the id")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Success") })
 	@GetMapping("/welcome")
 	public String welcome() {
 		return "Welcome in Birthday application!";
 	}
 
+	@Operation(summary = "Registers new user", description = "New user is created in the database.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "Success") })
 	@PostMapping("/register")
 	public ResponseEntity<String> addNewUser(
 			@RequestBody UserToRegisterRequest userToRegister) {
@@ -49,6 +60,10 @@ public class UserController {
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
+	@Operation(summary = "Login user", description = "Checks username and password against the database.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "It returns token."),
+			@ApiResponse(responseCode = "403", description = "Not valid login data.") })
 	@PostMapping("/login")
 	public String authenticateAndGetToken(
 			@RequestBody AuthRequest authRequest) {

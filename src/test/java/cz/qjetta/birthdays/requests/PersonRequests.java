@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -53,7 +56,11 @@ public class PersonRequests {
 
 	public void getPersonList(List<Person> expectedList, String jwt)
 			throws Exception {
-		String expectedBody = objectMapper.writeValueAsString(expectedList);
+		String expectedBody = objectMapper
+				.writeValueAsString(new PageImpl<Person>(expectedList,
+						PageRequest.of(0, 100,
+								Sort.by(Sort.Direction.ASC, "id")),
+						expectedList.size()));
 
 		mockMvc.perform(get(PERSON_ENDPOINT_PATH)//
 				.header("Authorization", AuthRequests.BEARER + jwt))

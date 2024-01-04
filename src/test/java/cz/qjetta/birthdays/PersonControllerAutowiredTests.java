@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 
 import cz.qjetta.birthdays.controller.PersonController;
@@ -42,8 +43,8 @@ class PersonControllerAutowiredTests {
 
 	@Test
 	void getPersonList() {
-		List<Person> result = controller.getPersonList();
-		assertIterableEquals(LIST_10_PERSON, result);
+		Page<Person> result = controller.getPersonList(null, null, null, 0, 10);
+		assertIterableEquals(LIST_10_PERSON, result.toList());
 	}
 
 }

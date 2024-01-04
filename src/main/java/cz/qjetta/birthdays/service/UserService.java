@@ -34,6 +34,8 @@ public class UserService {
 			throw new UniqueException("Email", userInfo.getEmail());
 		}
 
+		System.err.println(encoder.encode(userInfo.getPassword()));
+
 		userInfo.setPassword(encoder.encode(userInfo.getPassword()));
 		repository.save(userInfo);
 	}

@@ -1,5 +1,8 @@
 INSERT INTO user_info (name, email, password, roles) 
-VALUES ('user1', 'user1@example.com', 'password1', null);
+VALUES 
+	('user1', 'user1@example.com', 'password1', null),
+	('user', 'user@example.com', '$2a$10$P4BZazxggqG/1ubRQvL32.Fnsptx7b3g4.hxLPbn4Tl9QrVdA.wyG', 'USER');
+
 
 INSERT INTO person ( name, surname, birthday) 
 VALUES
