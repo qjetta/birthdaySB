@@ -1,13 +1,16 @@
 package cz.qjetta.birthdays.repository;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import cz.qjetta.birthdays.model.Person;
+import cz.qjetta.birthdays.entities.Person;
 
-public interface IPersonRepository extends JpaRepository<Person, Long> {
+public interface IPersonRepository
+		extends JpaRepository<Person, Long>, JpaSpecificationExecutor<Person> {
 
-	List<Person> findAllByOrderById();
-
+	@Override
+	Page<Person> findAll(Specification<Person> specification, Pageable page);
 }
